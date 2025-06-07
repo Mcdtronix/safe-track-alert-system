@@ -18,7 +18,7 @@ interface Person {
   id: string;
   name: string;
   age: number;
-  status: 'safe' |     | 'emergency';
+  status: 'safe' | 'warning' | 'emergency';
   location: string;
   lastContact: string;
   riskLevel: 'low' | 'medium' | 'high';
