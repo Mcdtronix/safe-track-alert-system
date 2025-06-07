@@ -7,7 +7,8 @@ import {
   AlertTriangle,
   Settings,
   Shield,
-  Activity
+  Activity,
+  MapPin
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -17,6 +18,7 @@ interface SidebarProps {
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'People', href: '/people', icon: Users },
+  { name: 'Location Tracking', href: '/location-tracking', icon: MapPin },
   { name: 'Alerts', href: '/alerts', icon: AlertTriangle },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +11,7 @@ import People from "./pages/People";
 import Alerts from "./pages/Alerts";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import LocationTracking from "./pages/LocationTracking";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +32,11 @@ const App = () => (
             <Route path="/people" element={
               <ProtectedRoute>
                 <People />
+              </ProtectedRoute>
+            } />
+            <Route path="/location-tracking" element={
+              <ProtectedRoute>
+                <LocationTracking />
               </ProtectedRoute>
             } />
             <Route path="/alerts" element={
