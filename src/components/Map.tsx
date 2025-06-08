@@ -160,15 +160,15 @@ const Map: React.FC<MapProps> = ({ people, selectedPersonId, onPersonSelect }) =
 
   if (!mapboxToken) {
     return (
-      <Card>
+      <Card className="bg-nav text-nav-foreground border-sidebar-border">
         <CardHeader>
-          <CardTitle>Configure Map</CardTitle>
+          <CardTitle className="text-nav-foreground">Configure Map</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-nav-foreground/80">
             Please enter your Mapbox public token to view real-time locations on the map.
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-nav-foreground/60">
             Get your token at: <a href="https://mapbox.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">mapbox.com</a>
           </p>
           <div className="flex space-x-2">
@@ -177,6 +177,7 @@ const Map: React.FC<MapProps> = ({ people, selectedPersonId, onPersonSelect }) =
               value={mapboxToken}
               onChange={(e) => setMapboxToken(e.target.value)}
               type="password"
+              className="bg-background"
             />
             <Button onClick={() => setMapboxToken(mapboxToken)}>
               Connect
@@ -188,18 +189,18 @@ const Map: React.FC<MapProps> = ({ people, selectedPersonId, onPersonSelect }) =
   }
 
   return (
-    <div className="relative w-full h-96 rounded-lg overflow-hidden border">
+    <div className="relative w-full h-96 rounded-lg overflow-hidden border border-sidebar-border">
       <div ref={mapContainer} className="absolute inset-0" />
-      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-2 space-y-1">
-        <div className="flex items-center space-x-2 text-xs">
+      <div className="absolute top-4 left-4 bg-nav/90 backdrop-blur-sm rounded-lg p-2 space-y-1 border border-sidebar-border">
+        <div className="flex items-center space-x-2 text-xs text-nav-foreground">
           <div className="w-3 h-3 rounded-full bg-green-500"></div>
           <span>Safe</span>
         </div>
-        <div className="flex items-center space-x-2 text-xs">
+        <div className="flex items-center space-x-2 text-xs text-nav-foreground">
           <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
           <span>Warning</span>
         </div>
-        <div className="flex items-center space-x-2 text-xs">
+        <div className="flex items-center space-x-2 text-xs text-nav-foreground">
           <div className="w-3 h-3 rounded-full bg-red-500"></div>
           <span>Emergency</span>
         </div>

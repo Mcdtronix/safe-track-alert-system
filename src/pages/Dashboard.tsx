@@ -81,53 +81,57 @@ const Dashboard = () => {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        {/* Total People Card - Green */}
+        <Card className="bg-dashboard-green text-dashboard-green-foreground border-dashboard-green">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total People</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-dashboard-green-foreground">Total People</CardTitle>
+            <Users className="h-4 w-4 text-dashboard-green-foreground/80" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{people.length}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold text-dashboard-green-foreground">{people.length}</div>
+            <p className="text-xs text-dashboard-green-foreground/80">
               Currently being monitored
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        {/* Safe Card - Green */}
+        <Card className="bg-dashboard-green text-dashboard-green-foreground border-dashboard-green">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Safe</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-600" />
+            <CardTitle className="text-sm font-medium text-dashboard-green-foreground">Safe</CardTitle>
+            <CheckCircle className="h-4 w-4 text-dashboard-green-foreground/80" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{safeCount}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold text-dashboard-green-foreground">{safeCount}</div>
+            <p className="text-xs text-dashboard-green-foreground/80">
               People confirmed safe
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        {/* Warnings Card - Gold */}
+        <Card className="bg-dashboard-gold text-dashboard-gold-foreground border-dashboard-gold">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Warnings</CardTitle>
-            <Clock className="h-4 w-4 text-yellow-600" />
+            <CardTitle className="text-sm font-medium text-dashboard-gold-foreground">Warnings</CardTitle>
+            <Clock className="h-4 w-4 text-dashboard-gold-foreground/80" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{warningCount}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold text-dashboard-gold-foreground">{warningCount}</div>
+            <p className="text-xs text-dashboard-gold-foreground/80">
               Require attention
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        {/* Emergency Card - Red */}
+        <Card className="bg-dashboard-red text-dashboard-red-foreground border-dashboard-red">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Emergencies</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-red-600" />
+            <CardTitle className="text-sm font-medium text-dashboard-red-foreground">Emergencies</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-dashboard-red-foreground/80" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{emergencyCount}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold text-dashboard-red-foreground">{emergencyCount}</div>
+            <p className="text-xs text-dashboard-red-foreground/80">
               Immediate action required
             </p>
           </CardContent>
@@ -135,30 +139,30 @@ const Dashboard = () => {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        {/* Recent Alerts */}
-        <Card className="col-span-4">
+        {/* Recent Alerts - Using custom nav background color */}
+        <Card className="col-span-4 bg-nav text-nav-foreground border-sidebar-border">
           <CardHeader>
-            <CardTitle>Active Alerts</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-nav-foreground">Active Alerts</CardTitle>
+            <CardDescription className="text-nav-foreground/80">
               Recent alerts requiring attention ({activeAlerts} active)
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {alerts.filter(a => a.status === 'active').map((alert) => (
-                <div key={alert.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div key={alert.id} className="flex items-center justify-between p-4 border border-sidebar-border rounded-lg bg-sidebar-accent/20">
                   <div className="flex items-center space-x-4">
-                    <AlertTriangle className="h-5 w-5 text-red-500" />
+                    <AlertTriangle className="h-5 w-5 text-red-400" />
                     <div>
-                      <p className="font-medium">{alert.personName}</p>
-                      <p className="text-sm text-muted-foreground">{alert.message}</p>
-                      <p className="text-xs text-muted-foreground">{alert.timestamp}</p>
+                      <p className="font-medium text-nav-foreground">{alert.personName}</p>
+                      <p className="text-sm text-nav-foreground/80">{alert.message}</p>
+                      <p className="text-xs text-nav-foreground/60">{alert.timestamp}</p>
                     </div>
                   </div>
                   <Button
                     size="sm"
                     onClick={() => sendTextAlert(alert.personName)}
-                    className="flex items-center space-x-2"
+                    className="flex items-center space-x-2 bg-sidebar-accent hover:bg-sidebar-accent/80"
                   >
                     <Phone className="h-4 w-4" />
                     <span>Send Alert</span>
@@ -166,17 +170,17 @@ const Dashboard = () => {
                 </div>
               ))}
               {activeAlerts === 0 && (
-                <p className="text-muted-foreground text-center py-4">No active alerts</p>
+                <p className="text-nav-foreground/60 text-center py-4">No active alerts</p>
               )}
             </div>
           </CardContent>
         </Card>
 
-        {/* People Status */}
-        <Card className="col-span-3">
+        {/* People Status - Using custom nav background color */}
+        <Card className="col-span-3 bg-nav text-nav-foreground border-sidebar-border">
           <CardHeader>
-            <CardTitle>People Status</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-nav-foreground">People Status</CardTitle>
+            <CardDescription className="text-nav-foreground/80">
               Current status of all monitored individuals
             </CardDescription>
           </CardHeader>
@@ -187,19 +191,19 @@ const Dashboard = () => {
                   <div className="flex items-center space-x-3">
                     <div className="w-2 h-2 rounded-full bg-green-500"></div>
                     <div>
-                      <p className="font-medium">{person.name}</p>
-                      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                      <p className="font-medium text-nav-foreground">{person.name}</p>
+                      <div className="flex items-center space-x-2 text-sm text-nav-foreground/80">
                         <MapPin className="h-3 w-3" />
                         <span>{person.location}</span>
                       </div>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-nav-foreground/60">
                         Last contact: {person.lastContact}
                       </p>
                     </div>
                   </div>
                   <div className="text-right space-y-1">
                     {getStatusBadge(person.status)}
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-nav-foreground/60">
                       Risk: {person.riskLevel}
                     </p>
                   </div>
