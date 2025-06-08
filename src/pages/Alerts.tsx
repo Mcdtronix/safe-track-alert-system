@@ -1,10 +1,10 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Search, 
   AlertTriangle, 
@@ -16,7 +16,7 @@ import {
   Calendar
 } from 'lucide-react';
 
-interface Alert {
+interface AlertData {
   id: string;
   personId: string;
   personName: string;
@@ -31,8 +31,9 @@ interface Alert {
 }
 
 const Alerts = () => {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
-  const [alerts] = useState<Alert[]>([
+  const [alerts] = useState<AlertData[]>([
     {
       id: '1',
       personId: '3',
@@ -149,14 +150,20 @@ const Alerts = () => {
     }
   };
 
-  const sendTextAlert = (alert: Alert) => {
-    console.log(`Sending escalation alert for ${alert.personName}`);
-    alert(`Emergency text alert sent for ${alert.personName} - ${alert.message}`);
+  const sendTextAlert = (alertData: AlertData) => {
+    console.log(`Sending escalation alert for ${alertData.personName}`);
+    toast({
+      title: "Emergency Text Alert Sent",
+      description: `Alert sent for ${alertData.personName} - ${alertData.message}`,
+    });
   };
 
   const resolveAlert = (alertId: string) => {
     console.log(`Resolving alert ${alertId}`);
-    alert(`Alert ${alertId} has been marked as resolved`);
+    toast({
+      title: "Alert Resolved",
+      description: `Alert ${alertId} has been marked as resolved`,
+    });
   };
 
   const activeAlerts = filteredAlerts.filter(a => a.status === 'active');
@@ -203,41 +210,41 @@ const Alerts = () => {
         </TabsList>
 
         <TabsContent value="active" className="space-y-4">
-          {activeAlerts.map((alert) => (
-            <Card key={alert.id} className="border-l-4 border-l-red-500">
+          {activeAlerts.map((alertData) => (
+            <Card key={alertData.id} className="border-l-4 border-l-red-500">
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      {getTypeIcon(alert.type)}
-                      <CardTitle className="text-lg">{alert.message}</CardTitle>
+                      {getTypeIcon(alertData.type)}
+                      <CardTitle className="text-lg">{alertData.message}</CardTitle>
                     </div>
                     <CardDescription className="flex items-center space-x-4">
                       <span className="flex items-center space-x-1">
                         <User className="h-3 w-3" />
-                        <span>{alert.personName}</span>
+                        <span>{alertData.personName}</span>
                       </span>
                       <span className="flex items-center space-x-1">
                         <Calendar className="h-3 w-3" />
-                        <span>{alert.timestamp}</span>
+                        <span>{alertData.timestamp}</span>
                       </span>
                     </CardDescription>
                   </div>
                   <div className="flex space-x-2">
-                    {getPriorityBadge(alert.priority)}
-                    {getStatusBadge(alert.status)}
+                    {getPriorityBadge(alertData.priority)}
+                    {getStatusBadge(alertData.status)}
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-sm">{alert.description}</p>
+                <p className="text-sm">{alertData.description}</p>
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <div className="flex items-center space-x-4">
-                    <span>Assigned to: {alert.assignedTo}</span>
-                    {alert.location && (
+                    <span>Assigned to: {alertData.assignedTo}</span>
+                    {alertData.location && (
                       <span className="flex items-center space-x-1">
                         <MapPin className="h-3 w-3" />
-                        <span>{alert.location}</span>
+                        <span>{alertData.location}</span>
                       </span>
                     )}
                   </div>
@@ -245,7 +252,7 @@ const Alerts = () => {
                 <div className="flex space-x-2">
                   <Button 
                     size="sm" 
-                    onClick={() => sendTextAlert(alert)}
+                    onClick={() => sendTextAlert(alertData)}
                     className="flex items-center space-x-1"
                   >
                     <Phone className="h-4 w-4" />
@@ -254,7 +261,7 @@ const Alerts = () => {
                   <Button 
                     size="sm" 
                     variant="outline"
-                    onClick={() => resolveAlert(alert.id)}
+                    onClick={() => resolveAlert(alertData.id)}
                   >
                     <CheckCircle className="h-4 w-4 mr-1" />
                     Resolve
@@ -277,42 +284,41 @@ const Alerts = () => {
         </TabsContent>
 
         <TabsContent value="investigating" className="space-y-4">
-          {investigatingAlerts.map((alert) => (
-            <Card key={alert.id} className="border-l-4 border-l-yellow-500">
-              {/* ... Similar card structure but with investigating-specific styling */}
+          {investigatingAlerts.map((alertData) => (
+            <Card key={alertData.id} className="border-l-4 border-l-yellow-500">
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      {getTypeIcon(alert.type)}
-                      <CardTitle className="text-lg">{alert.message}</CardTitle>
+                      {getTypeIcon(alertData.type)}
+                      <CardTitle className="text-lg">{alertData.message}</CardTitle>
                     </div>
                     <CardDescription className="flex items-center space-x-4">
                       <span className="flex items-center space-x-1">
                         <User className="h-3 w-3" />
-                        <span>{alert.personName}</span>
+                        <span>{alertData.personName}</span>
                       </span>
                       <span className="flex items-center space-x-1">
                         <Calendar className="h-3 w-3" />
-                        <span>{alert.timestamp}</span>
+                        <span>{alertData.timestamp}</span>
                       </span>
                     </CardDescription>
                   </div>
                   <div className="flex space-x-2">
-                    {getPriorityBadge(alert.priority)}
-                    {getStatusBadge(alert.status)}
+                    {getPriorityBadge(alertData.priority)}
+                    {getStatusBadge(alertData.status)}
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-sm">{alert.description}</p>
+                <p className="text-sm">{alertData.description}</p>
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <div className="flex items-center space-x-4">
-                    <span>Assigned to: {alert.assignedTo}</span>
-                    {alert.location && (
+                    <span>Assigned to: {alertData.assignedTo}</span>
+                    {alertData.location && (
                       <span className="flex items-center space-x-1">
                         <MapPin className="h-3 w-3" />
-                        <span>{alert.location}</span>
+                        <span>{alertData.location}</span>
                       </span>
                     )}
                   </div>
@@ -320,7 +326,7 @@ const Alerts = () => {
                 <div className="flex space-x-2">
                   <Button 
                     size="sm" 
-                    onClick={() => resolveAlert(alert.id)}
+                    onClick={() => resolveAlert(alertData.id)}
                   >
                     <CheckCircle className="h-4 w-4 mr-1" />
                     Resolve
@@ -335,73 +341,72 @@ const Alerts = () => {
         </TabsContent>
 
         <TabsContent value="resolved" className="space-y-4">
-          {resolvedAlerts.map((alert) => (
-            <Card key={alert.id} className="border-l-4 border-l-green-500 opacity-75">
-              {/* ... Similar structure for resolved alerts */}
+          {resolvedAlerts.map((alertData) => (
+            <Card key={alertData.id} className="border-l-4 border-l-green-500 opacity-75">
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      {getTypeIcon(alert.type)}
-                      <CardTitle className="text-lg">{alert.message}</CardTitle>
+                      {getTypeIcon(alertData.type)}
+                      <CardTitle className="text-lg">{alertData.message}</CardTitle>
                     </div>
                     <CardDescription className="flex items-center space-x-4">
                       <span className="flex items-center space-x-1">
                         <User className="h-3 w-3" />
-                        <span>{alert.personName}</span>
+                        <span>{alertData.personName}</span>
                       </span>
                       <span className="flex items-center space-x-1">
                         <Calendar className="h-3 w-3" />
-                        <span>{alert.timestamp}</span>
+                        <span>{alertData.timestamp}</span>
                       </span>
                     </CardDescription>
                   </div>
                   <div className="flex space-x-2">
-                    {getPriorityBadge(alert.priority)}
-                    {getStatusBadge(alert.status)}
+                    {getPriorityBadge(alertData.priority)}
+                    {getStatusBadge(alertData.status)}
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm">{alert.description}</p>
+                <p className="text-sm">{alertData.description}</p>
               </CardContent>
             </Card>
           ))}
         </TabsContent>
 
         <TabsContent value="all" className="space-y-4">
-          {filteredAlerts.map((alert) => (
-            <Card key={alert.id} className={`border-l-4 ${
-              alert.status === 'active' ? 'border-l-red-500' :
-              alert.status === 'investigating' ? 'border-l-yellow-500' :
+          {filteredAlerts.map((alertData) => (
+            <Card key={alertData.id} className={`border-l-4 ${
+              alertData.status === 'active' ? 'border-l-red-500' :
+              alertData.status === 'investigating' ? 'border-l-yellow-500' :
               'border-l-green-500 opacity-75'
             }`}>
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      {getTypeIcon(alert.type)}
-                      <CardTitle className="text-lg">{alert.message}</CardTitle>
+                      {getTypeIcon(alertData.type)}
+                      <CardTitle className="text-lg">{alertData.message}</CardTitle>
                     </div>
                     <CardDescription className="flex items-center space-x-4">
                       <span className="flex items-center space-x-1">
                         <User className="h-3 w-3" />
-                        <span>{alert.personName}</span>
+                        <span>{alertData.personName}</span>
                       </span>
                       <span className="flex items-center space-x-1">
                         <Calendar className="h-3 w-3" />
-                        <span>{alert.timestamp}</span>
+                        <span>{alertData.timestamp}</span>
                       </span>
                     </CardDescription>
                   </div>
                   <div className="flex space-x-2">
-                    {getPriorityBadge(alert.priority)}
-                    {getStatusBadge(alert.status)}
+                    {getPriorityBadge(alertData.priority)}
+                    {getStatusBadge(alertData.status)}
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm">{alert.description}</p>
+                <p className="text-sm">{alertData.description}</p>
               </CardContent>
             </Card>
           ))}
