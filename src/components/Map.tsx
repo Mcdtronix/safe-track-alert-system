@@ -125,19 +125,38 @@ const Map: React.FC<MapProps> = ({ people, selectedPersonId, onPersonSelect }) =
     }
   }, [people, isMapReady, onPersonSelect]);
 
-  // Highlight selected person
+  // Center map on selected person and highlight marker
   useEffect(() => {
+    if (!map.current || !selectedPersonId) return;
+
+    const selectedPerson = people.find(p => p.id === selectedPersonId);
+    if (!selectedPerson) return;
+
+    // Center map on selected person with smooth animation
+    map.current.easeTo({
+      center: selectedPerson.coordinates,
+      zoom: 15,
+      duration: 1000
+    });
+
+    // Update marker styles
     Object.entries(markers.current).forEach(([personId, marker]) => {
       const markerElement = marker.getElement();
       if (personId === selectedPersonId) {
-        markerElement.style.transform = 'scale(1.2)';
+        markerElement.style.transform = 'scale(1.3)';
         markerElement.style.zIndex = '1000';
+        markerElement.style.border = '4px solid #2563eb';
+        // Show popup for selected person
+        marker.getPopup().addTo(map.current!);
       } else {
         markerElement.style.transform = 'scale(1)';
         markerElement.style.zIndex = '1';
+        markerElement.style.border = '3px solid white';
+        // Hide popup for other people
+        marker.getPopup().remove();
       }
     });
-  }, [selectedPersonId]);
+  }, [selectedPersonId, people]);
 
   if (!mapboxToken) {
     return (
