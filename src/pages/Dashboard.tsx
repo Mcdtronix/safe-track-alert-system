@@ -12,6 +12,8 @@ import {
   Phone,
   Activity
 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/lib/api';
 
 interface Person {
   id: string;
@@ -33,23 +35,20 @@ interface Alert {
 }
 
 const Dashboard = () => {
-  const [people] = useState<Person[]>([
-    { id: '1', name: 'Mary Johnson', status: 'safe', location: 'Home', lastContact: '10 minutes ago', riskLevel: 'low' },
-    { id: '2', name: 'Robert Smith', status: 'warning', location: 'Community Center', lastContact: '2 hours ago', riskLevel: 'medium' },
-    { id: '3', name: 'Linda Davis', status: 'emergency', location: 'Unknown', lastContact: '6 hours ago', riskLevel: 'high' },
-    { id: '4', name: 'James Wilson', status: 'safe', location: 'Day Care', lastContact: '30 minutes ago', riskLevel: 'medium' },
-  ]);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['dashboard-stats'],
+    queryFn: () => api.get<any>('/dashboard-stats/'),
+  });
 
-  const [alerts] = useState<Alert[]>([
-    { id: '1', personId: '3', personName: 'Linda Davis', type: 'location', message: 'Missing from last known location', timestamp: '6 hours ago', status: 'active' },
-    { id: '2', personId: '2', personName: 'Robert Smith', type: 'communication', message: 'Missed scheduled check-in', timestamp: '2 hours ago', status: 'active' },
-    { id: '3', personId: '1', personName: 'Mary Johnson', type: 'safety', message: 'Arrived safely at destination', timestamp: '10 minutes ago', status: 'resolved' },
-  ]);
+  if (isLoading) return <div>Loading dashboard...</div>;
+  if (error) return <div>Error loading dashboard: {(error as Error).message}</div>;
 
-  const safeCount = people.filter(p => p.status === 'safe').length;
-  const warningCount = people.filter(p => p.status === 'warning').length;
-  const emergencyCount = people.filter(p => p.status === 'emergency').length;
-  const activeAlerts = alerts.filter(a => a.status === 'active').length;
+  const people = data.people_status || [];
+  const alerts = data.recent_alerts || [];
+  const safeCount = data.safe_count;
+  const warningCount = data.warning_count;
+  const emergencyCount = data.emergency_count;
+  const activeAlerts = data.active_alerts;
 
   const getStatusBadge = (status: string) => {
     switch (status) {

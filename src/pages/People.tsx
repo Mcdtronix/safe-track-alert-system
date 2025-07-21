@@ -13,6 +13,8 @@ import {
   Calendar,
   AlertTriangle
 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/lib/api';
 
 interface Person {
   id: string;
@@ -30,64 +32,16 @@ interface Person {
 
 const People = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [people] = useState<Person[]>([
-    {
-      id: '1',
-      name: 'Mary Johnson',
-      age: 78,
-      status: 'safe',
-      location: 'Home - 123 Oak Street',
-      lastContact: '10 minutes ago',
-      riskLevel: 'low',
-      phone: '+1 (555) 123-4567',
-      email: 'mary.johnson@email.com',
-      emergencyContact: 'John Johnson (Son) - +1 (555) 987-6543',
-      medicalInfo: 'Diabetes, Hypertension'
-    },
-    {
-      id: '2',
-      name: 'Robert Smith',
-      age: 65,
-      status: 'warning',
-      location: 'Community Center - 456 Pine Ave',
-      lastContact: '2 hours ago',
-      riskLevel: 'medium',
-      phone: '+1 (555) 234-5678',
-      email: 'robert.smith@email.com',
-      emergencyContact: 'Sarah Smith (Daughter) - +1 (555) 876-5432',
-      medicalInfo: 'Early stage dementia, Heart condition'
-    },
-    {
-      id: '3',
-      name: 'Linda Davis',
-      age: 82,
-      status: 'emergency',
-      location: 'Unknown - Last seen at Park',
-      lastContact: '6 hours ago',
-      riskLevel: 'high',
-      phone: '+1 (555) 345-6789',
-      email: 'linda.davis@email.com',
-      emergencyContact: 'Mike Davis (Son) - +1 (555) 765-4321',
-      medicalInfo: 'Alzheimer disease, Mobility issues'
-    },
-    {
-      id: '4',
-      name: 'James Wilson',
-      age: 71,
-      status: 'safe',
-      location: 'Day Care Center - 789 Elm St',
-      lastContact: '30 minutes ago',
-      riskLevel: 'medium',
-      phone: '+1 (555) 456-7890',
-      email: 'james.wilson@email.com',
-      emergencyContact: 'Lisa Wilson (Wife) - +1 (555) 654-3210',
-      medicalInfo: 'Mild cognitive impairment'
-    }
-  ]);
-
-  const filteredPeople = people.filter(person =>
-    person.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    person.location.toLowerCase().includes(searchTerm.toLowerCase())
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['people'],
+    queryFn: () => api.get<any>('/people/'),
+  });
+  if (isLoading) return <div>Loading people...</div>;
+  if (error) return <div>Error loading people: {(error as Error).message}</div>;
+  const people = data.results || [];
+  const filteredPeople = people.filter((person: any) =>
+    person.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (person.address || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusBadge = (status: string) => {
@@ -156,7 +110,7 @@ const People = () => {
               <div className="flex justify-between items-start">
                 <div>
                   <CardTitle className="flex items-center space-x-2">
-                    <span>{person.name}</span>
+                    <span>{person.full_name}</span>
                     <span className="text-sm font-normal text-muted-foreground">
                       (Age {person.age})
                     </span>
@@ -175,11 +129,11 @@ const People = () => {
               <div className="grid gap-3">
                 <div className="flex items-center space-x-2 text-sm">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span>{person.location}</span>
+                  <span>{person.address}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span>Last contact: {person.lastContact}</span>
+                  <span>Last contact: {person.last_contact}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm">
                   <Phone className="h-4 w-4 text-muted-foreground" />
@@ -194,11 +148,11 @@ const People = () => {
               <div className="border-t pt-3 space-y-2">
                 <div>
                   <p className="text-sm font-medium">Emergency Contact</p>
-                  <p className="text-sm text-muted-foreground">{person.emergencyContact}</p>
+                  <p className="text-sm text-muted-foreground">{person.emergency_contact}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">Medical Information</p>
-                  <p className="text-sm text-muted-foreground">{person.medicalInfo}</p>
+                  <p className="text-sm text-muted-foreground">{person.medical_info}</p>
                 </div>
               </div>
 

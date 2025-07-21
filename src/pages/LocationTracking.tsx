@@ -12,6 +12,8 @@ import {
   RefreshCw
 } from 'lucide-react';
 import Map from '@/components/Map';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/lib/api';
 
 interface Person {
   id: string;
@@ -31,68 +33,27 @@ interface Person {
 const LocationTracking = () => {
   const [selectedPersonId, setSelectedPersonId] = useState<string>('');
   const [isRefreshing, setIsRefreshing] = useState(false);
-  
-  // Sample data with coordinates (replace with real data from your backend)
-  const [people] = useState<Person[]>([
-    {
-      id: '1',
-      name: 'Mary Johnson',
-      age: 78,
-      status: 'safe',
-      location: 'Home - 123 Oak Street',
-      coordinates: [-74.006, 40.7128], // NYC coordinates
-      lastContact: '2 minutes ago',
-      riskLevel: 'low',
-      phone: '+1 (555) 123-4567',
-      emergencyContact: 'John Johnson (Son)',
-      batteryLevel: 85,
-      accuracy: 5
-    },
-    {
-      id: '2',
-      name: 'Robert Smith',
-      age: 65,
-      status: 'warning',
-      location: 'Community Center - 456 Pine Ave',
-      coordinates: [-74.0059, 40.7589], // NYC coordinates
-      lastContact: '15 minutes ago',
-      riskLevel: 'medium',
-      phone: '+1 (555) 234-5678',
-      emergencyContact: 'Sarah Smith (Daughter)',
-      batteryLevel: 45,
-      accuracy: 8
-    },
-    {
-      id: '3',
-      name: 'Linda Davis',
-      age: 82,
-      status: 'emergency',
-      location: 'Unknown - Last seen at Park',
-      coordinates: [-73.9857, 40.7484], // NYC coordinates
-      lastContact: '1 hour ago',
-      riskLevel: 'high',
-      phone: '+1 (555) 345-6789',
-      emergencyContact: 'Mike Davis (Son)',
-      batteryLevel: 15,
-      accuracy: 20
-    },
-    {
-      id: '4',
-      name: 'James Wilson',
-      age: 71,
-      status: 'safe',
-      location: 'Day Care Center - 789 Elm St',
-      coordinates: [-74.0445, 40.6892], // NYC coordinates
-      lastContact: '5 minutes ago',
-      riskLevel: 'medium',
-      phone: '+1 (555) 456-7890',
-      emergencyContact: 'Lisa Wilson (Wife)',
-      batteryLevel: 70,
-      accuracy: 3
-    }
-  ]);
-
-  const selectedPerson = people.find(p => p.id === selectedPersonId);
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['people'],
+    queryFn: () => api.get<any>('/people/'),
+  });
+  if (isLoading) return <div>Loading locations...</div>;
+  if (error) return <div>Error loading locations: {(error as Error).message}</div>;
+  const people = (data.results || []).map((person: any) => ({
+    id: person.id,
+    name: person.full_name,
+    age: person.age,
+    status: person.current_status,
+    location: person.last_known_location || person.address,
+    coordinates: person.last_location ? [parseFloat(person.last_location.longitude), parseFloat(person.last_location.latitude)] : [0,0],
+    lastContact: person.last_contact_time,
+    riskLevel: person.risk_level,
+    phone: person.phone,
+    emergencyContact: '', // You can fetch this from person.emergency_contacts if needed
+    batteryLevel: person.last_location?.battery_level,
+    accuracy: person.last_location?.accuracy,
+  }));
+  const selectedPerson = people.find((p: any) => p.id === selectedPersonId);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -116,8 +77,7 @@ const LocationTracking = () => {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    // Simulate API call to refresh locations
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await refetch();
     setIsRefreshing(false);
   };
 

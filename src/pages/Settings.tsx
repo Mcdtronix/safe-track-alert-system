@@ -17,8 +17,23 @@ import {
   MapPin
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api';
 
 const Settings = () => {
+  const queryClient = useQueryClient();
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['system-settings'],
+    queryFn: () => api.get<any>('/system-settings/'),
+  });
+  const mutation = useMutation({
+    mutationFn: (settings: any) => api.put(`/system-settings/${settings.id}/`, settings),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['system-settings'] })
+  });
+  if (isLoading) return <div>Loading settings...</div>;
+  if (error) return <div>Error loading settings: {(error as Error).message}</div>;
+  const systemSettings = data.results ? data.results[0] : data;
+
   const [alertSettings, setAlertSettings] = useState({
     textAlerts: true,
     emailAlerts: true,
@@ -26,14 +41,6 @@ const Settings = () => {
     emergencyAlerts: true,
     checkInReminders: true,
     locationAlerts: true,
-  });
-
-  const [systemSettings, setSystemSettings] = useState({
-    checkInInterval: '60',
-    emergencyTimeout: '30',
-    locationUpdateFreq: '15',
-    autoEscalation: true,
-    requireConfirmation: true,
   });
 
   const [contactSettings, setContactSettings] = useState({

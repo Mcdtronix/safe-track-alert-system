@@ -15,6 +15,8 @@ import {
   User,
   Calendar
 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/lib/api';
 
 interface AlertData {
   id: string;
@@ -33,78 +35,17 @@ interface AlertData {
 const Alerts = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
-  const [alerts] = useState<AlertData[]>([
-    {
-      id: '1',
-      personId: '3',
-      personName: 'Linda Davis',
-      type: 'location',
-      priority: 'critical',
-      message: 'Missing from last known location',
-      description: 'Linda Davis has not been seen for over 6 hours. Last known location was Central Park. Family has been notified.',
-      timestamp: '6 hours ago',
-      status: 'active',
-      assignedTo: 'Officer Johnson',
-      location: 'Central Park area'
-    },
-    {
-      id: '2',
-      personId: '2',
-      personName: 'Robert Smith',
-      type: 'communication',
-      priority: 'high',
-      message: 'Missed scheduled check-in',
-      description: 'Robert Smith failed to complete his scheduled 2 PM check-in. Attempts to contact via phone have been unsuccessful.',
-      timestamp: '2 hours ago',
-      status: 'investigating',
-      assignedTo: 'Case Worker Mary',
-      location: 'Community Center'
-    },
-    {
-      id: '3',
-      personId: '1',
-      personName: 'Mary Johnson',
-      type: 'safety',
-      priority: 'low',
-      message: 'Arrived safely at destination',
-      description: 'Mary Johnson has confirmed safe arrival at her daughter\'s house for the weekend visit.',
-      timestamp: '10 minutes ago',
-      status: 'resolved',
-      assignedTo: 'System',
-      location: 'Daughter\'s House'
-    },
-    {
-      id: '4',
-      personId: '4',
-      personName: 'James Wilson',
-      type: 'medical',
-      priority: 'medium',
-      message: 'Medication reminder alert',
-      description: 'James Wilson has not confirmed taking his evening medication. Caregiver has been notified.',
-      timestamp: '1 hour ago',
-      status: 'active',
-      assignedTo: 'Nurse Patricia',
-      location: 'Day Care Center'
-    },
-    {
-      id: '5',
-      personId: '2',
-      personName: 'Robert Smith',
-      type: 'safety',
-      priority: 'high',
-      message: 'Wandering behavior detected',
-      description: 'Robert Smith was found outside his designated safe zone. Staff intervened and he is now safe.',
-      timestamp: '1 day ago',
-      status: 'resolved',
-      assignedTo: 'Security Team',
-      location: 'Outside Community Center'
-    }
-  ]);
-
-  const filteredAlerts = alerts.filter(alert =>
-    alert.personName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    alert.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    alert.type.toLowerCase().includes(searchTerm.toLowerCase())
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['alerts'],
+    queryFn: () => api.get<any>('/alerts/'),
+  });
+  if (isLoading) return <div>Loading alerts...</div>;
+  if (error) return <div>Error loading alerts: {(error as Error).message}</div>;
+  const alerts = data.results || [];
+  const filteredAlerts = alerts.filter((alert: any) =>
+    (alert.person_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (alert.message || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (alert.alert_type || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusBadge = (status: string) => {

@@ -12,21 +12,19 @@ import { toast } from '@/hooks/use-toast';
 
 const Login = () => {
   const { user, login, isLoading } = useAuth();
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ username: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ username?: string; password?: string }>({});
 
   if (user) {
     return <Navigate to="/" replace />;
   }
 
   const validateForm = () => {
-    const newErrors: { email?: string; password?: string } = {};
+    const newErrors: { username?: string; password?: string } = {};
     
-    if (!formData.email) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+    if (!formData.username) {
+      newErrors.username = 'Username is required';
     }
     
     if (!formData.password) {
@@ -46,12 +44,12 @@ const Login = () => {
       return;
     }
 
-    const success = await login(formData.email, formData.password);
+    const success = await login(formData.username, formData.password);
     
     if (!success) {
       toast({
         title: "Login Failed",
-        description: "Invalid email or password. Please try again.",
+        description: "Invalid username or password. Please try again.",
         variant: "destructive"
       });
     } else {
@@ -76,22 +74,22 @@ const Login = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+            <div>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                className={errors.email ? 'border-destructive' : ''}
+                id="username"
+                type="text"
+                placeholder="Enter your username"
+                value={formData.username}
+                onChange={e => setFormData({ ...formData, username: e.target.value })}
+                disabled={isLoading}
+                autoComplete="username"
+                className={errors.username ? 'border-red-500' : ''}
               />
-              {errors.email && (
-                <p className="text-sm text-destructive">{errors.email}</p>
-              )}
+              {errors.username && <div className="text-red-500 text-xs mt-1">{errors.username}</div>}
             </div>
             
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Input
@@ -99,26 +97,21 @@ const Login = () => {
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Enter your password"
                   value={formData.password}
-                  onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                  className={errors.password ? 'border-destructive' : ''}
+                  onChange={e => setFormData({ ...formData, password: e.target.value })}
+                  disabled={isLoading}
+                  autoComplete="current-password"
+                  className={errors.password ? 'border-red-500' : ''}
                 />
-                <Button
+                <button
                   type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  className="absolute right-2 top-2 text-gray-400 hover:text-gray-600"
                   onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </Button>
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
-              {errors.password && (
-                <p className="text-sm text-destructive">{errors.password}</p>
-              )}
+              {errors.password && <div className="text-red-500 text-xs mt-1">{errors.password}</div>}
             </div>
 
             <Button 
@@ -137,6 +130,8 @@ const Login = () => {
                 Admin: admin@vtps.com / admin123<br />
                 Operator: operator@vtps.com / operator123<br />
                 Supervisor: supervisor@vtps.com / supervisor123
+                <br />
+                <em>Use your username (not email) to login.</em>
               </span>
             </AlertDescription>
           </Alert>

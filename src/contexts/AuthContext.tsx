@@ -1,28 +1,25 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import api from '@/lib/api';
 
 interface User {
   id: string;
+  username: string;
   email: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   role: string;
+  phone?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Demo credentials
-const DEMO_USERS = [
-  { id: '1', email: 'admin@vtps.com', password: 'admin123', name: 'Administrator', role: 'Admin' },
-  { id: '2', email: 'operator@vtps.com', password: 'operator123', name: 'Operator', role: 'Operator' },
-  { id: '3', email: 'supervisor@vtps.com', password: 'supervisor123', name: 'Supervisor', role: 'Supervisor' }
-];
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -31,40 +28,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Check for stored user session
     const storedUser = localStorage.getItem('vtps_user');
-    if (storedUser) {
+    const token = localStorage.getItem('vtps_token');
+    if (storedUser && token) {
       setUser(JSON.parse(storedUser));
+      api.setToken(token);
     }
     setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const foundUser = DEMO_USERS.find(u => u.email === email && u.password === password);
-    
-    if (foundUser) {
-      const userData = {
-        id: foundUser.id,
-        email: foundUser.email,
-        name: foundUser.name,
-        role: foundUser.role
-      };
-      setUser(userData);
-      localStorage.setItem('vtps_user', JSON.stringify(userData));
+    try {
+      // The backend expects 'username', not 'email'
+      const res = await api.post<{ token: string; user: User }>('/auth/login/', { username: email, password });
+      api.setToken(res.token);
+      setUser(res.user);
+      localStorage.setItem('vtps_user', JSON.stringify(res.user));
+      localStorage.setItem('vtps_token', res.token);
       setIsLoading(false);
       return true;
+    } catch (err) {
+      setIsLoading(false);
+      return false;
     }
-    
-    setIsLoading(false);
-    return false;
   };
 
-  const logout = () => {
+  const logout = async () => {
+    setIsLoading(true);
+    try {
+      await api.post('/auth/logout/');
+    } catch {}
     setUser(null);
+    api.clearToken();
     localStorage.removeItem('vtps_user');
+    localStorage.removeItem('vtps_token');
+    setIsLoading(false);
   };
 
   return (
